@@ -19,5 +19,5 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["coursework*"]  # alternatively: `exclude = ["additional*"]`
+exclude = ["additional*"]
 namespaces = false
