@@ -8,18 +8,18 @@ class HEI(db.Model):
     UKPRN: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     he_name: Mapped[str] = mapped_column(db.Text, primary_key=True)
     region: Mapped[str] = mapped_column(db.Text, nullable = False)
-    lat: Mapped[float] = mapped_column(db.Float, nullable = True)
-    lon: Mapped[float] = mapped_column(db.Float, nullable = True)
-    # add relationship to Entry table
+    lat: Mapped[str] = mapped_column(db.Text, nullable = True)
+    lon: Mapped[str] = mapped_column(db.Text, nullable = True)
     entries: Mapped[List['Entry']] = relationship(back_populates='hei')
 
 class Entry(db.Model):
     __tablename__ = 'entry'
-    academic_year: Mapped[str] = mapped_column(db.Text, primary_key=True)
-    classification: Mapped[str] = mapped_column(db.Text, primary_key=True)
-    category_marker: Mapped[str] = mapped_column(db.Text, primary_key=True)
-    category: Mapped[str] = mapped_column(db.Text, primary_key=True)
-    value: Mapped[str] = mapped_column(db.Text, nullable = False)
+    entry_id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
+    academic_year: Mapped[str] = mapped_column(db.Text, nullable = False)
+    classification: Mapped[str] = mapped_column(db.Text, nullable = False)
+    category_marker: Mapped[str] = mapped_column(db.Text, nullable = False)
+    category: Mapped[str] = mapped_column(db.Text, nullable = False)
+    value: Mapped[str] = mapped_column(db.Text)
     UKPRN: Mapped[int] = mapped_column(db.Integer)
     he_name: Mapped[str] = mapped_column(db.Text)
     __table_args__ = (
@@ -37,7 +37,6 @@ class User(db.Model):
     password: Mapped[str] = mapped_column(db.Text, unique=True, nullable=False)
     saved_charts: Mapped[List['SavedChart']] = relationship( back_populates='user')
 
-# TODO: Change password to be a hashed password
     def __init__(self, email: str, password: str):
         """
         Create a new User object using the plain text password.
@@ -55,4 +54,5 @@ class SavedChart(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id'))
     user: Mapped['User'] = relationship('User', back_populates='saved_charts')
 
-
+# TODO: Change password to be a hashed password
+# TODO: Add lat and lon data to dataset

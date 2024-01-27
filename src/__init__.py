@@ -3,6 +3,7 @@ import csv
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from sqlalchemy.orm import DeclarativeBase
 from pathlib import Path
 
@@ -11,29 +12,31 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
+ma = Marshmallow()
+
 def add_data_from_csv():
 
     from src.models import HEI, Entry
 
     first_HEI = db.session.execute(db.select(HEI)).first()
     if not first_HEI:
-        data_file = Path(__file__).parent.parent.joinpath('data', 'dataset_prepared.csv')
+        data_file = Path(__file__).parent.parent.joinpath('data', 'hei_data.csv')
         with open(data_file, 'r') as file:
             reader = csv.reader(file)
             next(reader)
             for row in reader:
-                he = HEI(UKPRN=row[0], he_name=row[1], region=row[4])
+                he = HEI(UKPRN=row[0], he_name=row[1], region=row[2], lat=row[3], lon=row[4])
                 db.session.add(he)
             db.session.commit()
 
     first_entry = db.session.execute(db.select(Entry)).first()
     if not first_entry:
-        data_file = Path(__file__).parent.parent.joinpath('data', 'dataset_prepared.csv')
+        data_file = Path(__file__).parent.parent.joinpath('data', 'entry_data.csv')
         with open(data_file, 'r') as file:
             reader = csv.reader(file)
             next(reader)
             for row in reader:
-                entry = Entry(academic_year=row[2], classification=row[5], category_marker=row[6], category=row[7], value=row[8], UKPRN=row[0], he_name=row[1])
+                entry = Entry(entry_id=row[0], academic_year=row[1], classification=row[2], category_marker=row[3], category=row[4], value=row[5], UKPRN=row[6], he_name=row[7])
                 db.session.add(entry)
             db.session.commit()
 
@@ -62,6 +65,8 @@ def create_app(test_config=None):
     
     db.init_app(app)
 
+    ma.init_app(app)
+
     from src.models import HEI, Entry, User, SavedChart
 
     with app.app_context():
@@ -73,4 +78,3 @@ def create_app(test_config=None):
 
     return app
 
-#TODO: Split dataset csv into hei and entry csvs
