@@ -7,7 +7,7 @@ class HEISchema(ma.SQLAlchemyAutoSchema):
         include_fk = True
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
+        include_relationships = False
 
 class EntrySchema(ma.SQLAlchemyAutoSchema):
     class Meta:
@@ -15,4 +15,4 @@ class EntrySchema(ma.SQLAlchemyAutoSchema):
         include_fk = True
         load_instance = True
         sqla_session = db.session
-        include_relationships = True
+        include_relationships = False
