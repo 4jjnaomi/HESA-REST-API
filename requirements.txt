@@ -1,7 +1,8 @@
 blinker==1.7.0
 click==8.1.7
 colorama==0.4.6
--e git+https://github.com/ucl-comp0035/comp0034-cw1i-4jjnaomi.git@75253c3f5bd9f5832d287f13df96ccc27874954f#egg=comp0034_cw1i
+-e git+https://github.com/ucl-comp0035/comp0034-cw1i-4jjnaomi.git@f07fc1b1b20a4e62f41ec51ce6f42449bbf30b73#egg=comp0034_cw1i
+coverage==7.4.1
 Flask==3.0.1
 flask-marshmallow==1.2.0
 Flask-SQLAlchemy==3.1.1
@@ -17,6 +18,7 @@ packaging==23.2
 pandas==2.2.0
 pluggy==1.4.0
 pytest==8.0.0
+pytest-cov==4.1.0
 python-dateutil==2.8.2
 pytz==2023.3.post1
 six==1.16.0

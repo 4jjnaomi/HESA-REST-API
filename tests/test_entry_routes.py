@@ -1,3 +1,6 @@
+from unittest.mock import patch
+from sqlalchemy.exc import SQLAlchemyError
+
 # Test GET /entry
 def test_get_entries(client):
     response = client.get('/entry')
@@ -36,9 +39,9 @@ def test_delete_entry(client, new_entry):
 
 # Test DELETE /entry/<id> for nonexistent entry
 def test_delete_nonexistent_entry(client):
-    response = client.delete('/entry/123456')
+    response = client.delete('/entry/999999')
     assert response.status_code == 404
-    assert response.json == {'message': 'Entry with id 123456 not found.'}
+    assert response.json == {'message': 'Entry with id 999999 not found.'}
 
 # Test PATCH /entry/<id>
 def test_patch_entry(client, new_entry):
@@ -103,3 +106,42 @@ def test_put_new_entry(client):
     response = client.put('/entry/123456', json=response_json, content_type='application/json')
     assert response.status_code == 200
     assert response.json == {'message': 'Entry with entry_id 123456 updated successfully'}
+
+@patch('src.controllers.db.session.execute', side_effect=SQLAlchemyError)
+def test_get_entry_exception(mock_execute, client):
+    response = client.get('/entry')
+    assert response.status_code == 500
+    assert response.json == {'message': 'An Internal Server Error occurred. Please try again later.'}
+
+@patch('src.controllers.db.session.add', side_effect=SQLAlchemyError)
+def test_post_entry_exception(mock_add, client):
+    response_json = {
+        "entry_id": "100000",
+        "academic_year": "20/20",
+        "classification": "dummy",
+        "category_marker": "dummy",
+        "category": "dummy",
+        "value": "70",
+        "UKPRN": "111111",
+        "he_name": "University of Naomi"
+    }
+    response = client.post('/entry', json=response_json, content_type='application/json')
+    assert response.status_code == 500
+    assert response.json == {'message': 'An Internal Server Error occurred. Please try again later.'}
+
+@patch('src.controllers.db.session.merge', side_effect=SQLAlchemyError)
+def test_patch_entry_exception(mock_merge, client, new_entry):
+    entry_id = new_entry['entry_id']
+    response_json = {
+        "academic_year": "21/22",
+        "classification": "updated",
+        "category_marker": "updated",
+        "category": "updated",
+        "value": "80",
+        "UKPRN": "222222",
+        "he_name": "Updated University"
+    }
+    response = client.patch(f'/entry/{entry_id}', json=response_json, content_type='application/json')
+    assert response.status_code == 500
+    assert response.json == {'message': 'An Internal Server Error occurred. Please try again later.'}
+
