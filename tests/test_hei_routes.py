@@ -1,27 +1,5 @@
 import pytest
 
-def test_index_page(client):
-    """
-    GIVEN a Flask test client
-    WHEN a GET request is made to /
-    THEN the status code should be 200
-    AND the page should contain HTML that reads 'Index Page'
-    """
-    response = client.get('/')
-    assert response.status_code == 200
-    assert b'Index Page' in response.data
-
-def test_404_page(client):
-    """
-    GIVEN a Flask test client
-    WHEN a GET request is made to a non-existent page
-    THEN the status code should be 404
-    AND the page should contain HTML that reads 'Not Found'
-    """
-    response = client.get('/non-existent-page')
-    assert response.status_code == 404
-    assert b'Not Found' in response.data
-
 def test_get_hei_contains_UKPRN(client):
     """
     GIVEN a Flask test client

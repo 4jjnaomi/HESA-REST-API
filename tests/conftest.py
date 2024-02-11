@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from sqlalchemy import exists
 from src import create_app, db
-from src.models import HEI
-from src.schemas import HEISchema
+from src.models import HEI, Entry
+from src.schemas import HEISchema, EntrySchema
 
 
 @pytest.fixture(scope='session')
@@ -73,3 +73,31 @@ def new_hei(app):
                 # Only delete the HEI if it exists in the database
                 db.session.execute(HEI.__table__.delete().where(HEI.UKPRN == "10000000"))
                 db.session.commit()
+
+@pytest.fixture(scope='function')
+def new_entry(app):
+    new_entry_json = {
+      "entry_id": "100000",
+      "academic_year": "20/20",
+      "classification": "dummy",
+      "category_marker": "dummy",
+      "category": "dummy",
+      "value": "70",
+      "UKPRN": "111111",
+      "he_name": "University of Naomi"
+    }
+     
+    with app.app_context():
+        new_entry = EntrySchema().load(new_entry_json)
+        db.session.add(new_entry)
+        db.session.commit()
+    
+    yield new_entry_json
+
+    with app.app_context():
+        entry_exists = db.session.query(exists().where(Entry.entry_id == "100000")).scalar()
+        if entry_exists:
+            # Only delete the entry if it exists in the database
+            db.session.execute(Entry.__table__.delete().where(Entry.entry_id == "100000"))
+            db.session.commit()
+

@@ -201,62 +201,47 @@ def delete_entry(id1):
         msg = {'message': f'Entry with id {id1} not found.'}
         return make_response((msg), 404)
 
-@app.patch("/entry/<entry_id>")
-def entry_update(entry_id):
-    app.logger.info(f'Updating entry with entry_id: {entry_id}')
+@app.route("/entry/<id1>", methods=['PUT', 'PATCH'])
+def entry_update(id1):
     try:
-        entry = db.session.execute(db.select(Entry).filter_by(entry_id=entry_id)).scalar_one()
+        entry = db.session.execute(db.select(Entry).filter(Entry.entry_id == id1)).scalar_one()
     except exc.NoResultFound as e:
-        app.logger.error(f'No result found for entry_id: {entry_id}. Error: {e}')
-        msg = {'message': f'No result found for entry_id: {entry_id}'}
-        return make_response((msg), 404)
+        if request.method == 'PUT':
+            app.logger.info(f'Creating a new entry with id: {id1}')
+            entry = Entry(entry_id=id1)
+        elif request.method == 'PATCH':
+            app.logger.error(f'No result found for entry_id: {id1}. Error: {str(e)}')
+            msg = {'message': f'No result found for entry_id: {id1}'}
+            return make_response(jsonify(msg), 404)
+    
     entry_json = request.get_json()
-    app.logger.info(f'Updating entry with entry_id: {entry_id} with data: {entry_json}')
-    try:
-        entry_updated = entry_schema.load(entry_json, instance=entry, partial=True)
-    except ValidationError as e:
-        app.logger.error(f'A Marshmallow validation error occurred updating entry: {str(e)}')
-        msg = {'message': 'The entry details failed validation.'}
-        return make_response((msg), 400)
-    try:
-        db.session.add(entry_updated)
-        db.session.commit()
-        updated_entry = db.session.execute(db.select(Entry).filter_by(entry_id=entry_id)).scalar_one()
-        result = entry_schema.jsonify(updated_entry)
-        response = make_response(result, 200)
-        return response
-    except exc.SQLAlchemyError as e:
-        app.logger.error(f'A SQLAlchemy error occurred updating entry: {str(e)}')
-        msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
-        return make_response(msg, 500)
-
-@app.put("/entry/<entry_id>")
-def entry_update_put(entry_id):
-    app.logger.info(f'Updating entry with entry_id: {entry_id}')
-    try:
-        entry = db.session.execute(db.select(Entry).filter_by(entry_id=entry_id)).scalar_one()
-    except exc.NoResultFound as e:
-        app.logger.error(f'No result found for entry_id: {entry_id}. Error: {e}')
-        msg = {'message': f'No result found for entry_id: {entry_id}'}
-        return make_response(jsonify(msg), 404)
-
-    entry_json = request.get_json()
-    app.logger.info(f'Updating entry with entry_id: {entry_id} with data: {entry_json}')
+    app.logger.info(f'Updating entry with id: {id1} with data: {entry_json}')
     
     try:
-        entry_updated = entry_schema.load(entry_json, instance=entry)
+        if request.method == 'PUT':
+            entry_update = entry_schema.load(entry_json)
+        elif request.method == 'PATCH':
+            entry_update = entry_schema.load(entry_json, instance=entry, partial=True)
+
     except ValidationError as e:
         app.logger.error(f'A Marshmallow validation error occurred updating entry: {str(e)}')
         msg = {'message': 'The entry details failed validation.'}
         return make_response(jsonify(msg), 400)
+    
     try:
-        db.session.merge(entry_updated)
+        if entry.entry_id and entry.entry_id != entry_update.entry_id:
+            app.logger.info(f'Updating entry with id: {id1}. New id: {entry_update.entry_id}')
+        else:
+            app.logger.info(f'Updating entry with id: {id1}')
+
+        db.session.merge(entry_update)
         db.session.commit()
-        updated_entry = db.session.execute(db.select(Entry).filter_by(entry_id=entry_id)).scalar_one()
-        result = entry_schema.jsonify(updated_entry)
-        response = make_response(result, 200)
-        return response
+
+        app.logger.info(f'Entry with entry_id {entry_update.entry_id} updated successfully')
+        return {'message': f'Entry with entry_id {entry_update.entry_id} updated successfully'}
+    
     except exc.SQLAlchemyError as e:
         app.logger.error(f'A SQLAlchemy error occurred updating entry: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response(jsonify(msg), 500)
+    
