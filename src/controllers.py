@@ -26,8 +26,14 @@ def hello(name):
 
 @app.get("/hei")
 def get_heis():
+    #/hei?page=1&per_page=10
     try:
-        all_heis = db.session.execute(db.select(HEI)).scalars()
+        page = int(request.args.get('page', 1))  # Get the requested page number, default to 1 if not provided
+        per_page = int(request.args.get('per_page', 10))  # Get the number of items per page, default to 10 if not provided
+
+        # Calculate the offset based on the requested page and per_page values
+        offset = (page - 1) * per_page
+        all_heis = db.session.execute(db.select(HEI).offset(offset).limit(per_page)).scalars()
         try:
             result = heis_schema.dump(all_heis)
 
@@ -110,13 +116,51 @@ def hei_update(UKPRN):
         app.logger.error(f'A SQLAlchemy error occurred updating HEI: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response(msg, 500)
+    
+@app.put("/hei/<UKPRN>")
+def hei_update_put(UKPRN):
+    app.logger.info(f'Updating HEI with UKPRN: {UKPRN}')
+    try:
+        hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+    except exc.NoResultFound as e:
+        app.logger.error(f'No result found for UKPRN: {UKPRN}. Error: {str(e)}')
+        msg = {'message': f'No result found for UKPRN: {UKPRN}'}
+        return make_response(jsonify(msg), 404)
+
+    hei_json = request.get_json()
+    app.logger.info(f'Updating HEI with UKPRN: {UKPRN} with data: {hei_json}')
+    
+    try:
+        hei_update = hei_schema.load(hei_json, instance=hei)
+    except ValidationError as e:
+        app.logger.error(f'A Marshmallow validation error occurred updating HEI: {str(e)}')
+        msg = {'message': 'The HEI details failed validation.'}
+        return make_response(jsonify(msg), 400)
+    
+    try:
+        db.session.merge(hei_update)
+        db.session.commit()
+        updated_hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+        result = hei_schema.jsonify(updated_hei)
+        response = make_response(result, 200)
+        return response
+    except exc.SQLAlchemyError as e:
+        app.logger.error(f'A SQLAlchemy error occurred updating HEI: {str(e)}')
+        msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
+        return make_response(jsonify(msg), 500)
 
 
 #Entry routes
 @app.get("/entry")
 def get_entries():
     try:
-        all_entries = db.session.execute(db.select(Entry)).scalars()
+        page = int(request.args.get('page', 1))  # Get the requested page number, default to 1 if not provided
+        per_page = int(request.args.get('per_page', 10))  # Get the number of items per page, default to 10 if not provided
+
+        # Calculate the offset based on the requested page and per_page values
+        offset = (page - 1) * per_page
+
+        all_entries = db.session.execute(db.select(Entry).offset(offset).limit(per_page)).scalars()
         try:
             result = entries_schema.dump(all_entries)
 
@@ -200,3 +244,35 @@ def entry_update(entry_id):
         app.logger.error(f'A SQLAlchemy error occurred updating entry: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response(msg, 500)
+
+@app.put("/entry/<entry_id>")
+def entry_update_put(entry_id):
+    app.logger.info(f'Updating entry with entry_id: {entry_id}')
+    try:
+        entry = db.session.execute(db.select(Entry).filter_by(entry_id=entry_id)).scalar_one()
+    except exc.NoResultFound as e:
+        app.logger.error(f'No result found for entry_id: {entry_id}. Error: {e}')
+        msg = {'message': f'No result found for entry_id: {entry_id}'}
+        return make_response(jsonify(msg), 404)
+
+    entry_json = request.get_json()
+    app.logger.info(f'Updating entry with entry_id: {entry_id} with data: {entry_json}')
+    
+    try:
+        entry_updated = entry_schema.load(entry_json, instance=entry)
+    except ValidationError as e:
+        app.logger.error(f'A Marshmallow validation error occurred updating entry: {str(e)}')
+        msg = {'message': 'The entry details failed validation.'}
+        return make_response(jsonify(msg), 400)
+    
+    try:
+        db.session.merge(entry_updated)
+        db.session.commit()
+        updated_entry = db.session.execute(db.select(Entry).filter_by(entry_id=entry_id)).scalar_one()
+        result = entry_schema.jsonify(updated_entry)
+        response = make_response(result, 200)
+        return response
+    except exc.SQLAlchemyError as e:
+        app.logger.error(f'A SQLAlchemy error occurred updating entry: {str(e)}')
+        msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
+        return make_response(jsonify(msg), 500)
