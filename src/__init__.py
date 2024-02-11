@@ -1,5 +1,6 @@
 import os
 import csv
+import logging
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -43,10 +44,10 @@ def add_data_from_csv():
 def create_app(test_config=None):
     # create the Flask app
     app = Flask(__name__, instance_relative_config=True)
-    # configure the Flask app (see later notes on how to generate your own SECRET_KEY)
+    # configure the Flask app 
     app.config.from_mapping(
         SECRET_KEY='hEdmZaBc28fe_dHMm0QaXg',
-        # Set the location of the database file called paralympics.sqlite which will be in the app's instance folder
+        # Set the location of the database file
         SQLALCHEMY_DATABASE_URI= "sqlite:///" + os.path.join(app.instance_path, 'hei_environmental.sqlite'),  
     )
 
@@ -62,6 +63,8 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    configure_logging(app)
     
     db.init_app(app)
 
@@ -78,3 +81,18 @@ def create_app(test_config=None):
 
     return app
 
+def configure_logging(app):
+    """ Configures Flask logging to a file.
+
+    Logging level is set to DEBUG when testing which generates more detail.
+    """
+    logging.basicConfig(format='[%(asctime)s] %(levelname)s %(name)s: %(message)s')
+
+    if app.config['TESTING']:
+        logging.getLogger().setLevel(logging.DEBUG)
+        handler = logging.FileHandler('src_tests.log')  # Log to a file
+    else:
+        logging.getLogger().setLevel(logging.INFO)
+        handler = logging.FileHandler('src.log')  # Log to a file
+    
+    app.logger.addHandler(handler)
