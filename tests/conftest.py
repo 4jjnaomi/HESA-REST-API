@@ -4,6 +4,8 @@ from pathlib import Path
 import pytest
 from sqlalchemy import exists
 from src import create_app, db
+from src.models import HEI
+from src.schemas import HEISchema
 
 
 @pytest.fixture(scope='session')
@@ -50,3 +52,24 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+@pytest.fixture(scope='function')
+def new_hei(app):
+    new_hei_json = {
+        "UKPRN": 10000000,
+        "he_name": "New Univerity",
+        "region": "New Region"
+    }
+    with app.app_context():
+        new_hei = HEISchema().load(new_hei_json)
+        db.session.add(new_hei)
+        db.session.commit()
+        
+    yield new_hei_json
+
+    with app.app_context():
+            hei_exists = db.session.query(exists().where(HEI.UKPRN == "10000000")).scalar()
+            if hei_exists:
+                # Only delete the HEI if it exists in the database
+                db.session.execute(HEI.__table__.delete().where(HEI.UKPRN == "10000000"))
+                db.session.commit()

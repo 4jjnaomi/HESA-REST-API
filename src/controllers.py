@@ -1,4 +1,4 @@
-from flask import current_app as app, request, make_response, abort, jsonify
+from flask import current_app as app, request, make_response, jsonify
 from sqlalchemy import exc
 from marshmallow.exceptions import ValidationError
 
@@ -42,7 +42,6 @@ def get_heis():
         app.logger.error(f'A SQLAlchemy error occurred fetching regions: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response((msg), 500)
-    
 
 @app.get("/hei/<UKPRN>")
 def get_hei_using_ukprn(UKPRN):
@@ -84,67 +83,111 @@ def delete_hei_using_ukprn(UKPRN):
         msg = {'message': f'HEI with UKPRN {UKPRN} not found.'}
         return make_response((msg), 404)
 
-@app.patch("/hei/<UKPRN>")
-def hei_update(UKPRN):
-    app.logger.info(f'Updating HEI with UKPRN: {UKPRN}')
-    try:
-        hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
-    except exc.NoResultFound as e:
-        app.logger.error(f'No result found for UKPRN: {UKPRN}. Error: {str(e)}')
-        msg = {'message': f'No result found for UKPRN: {UKPRN}'}
-        return make_response((msg), 404)
-    hei_json = request.get_json()
-    app.logger.info(f'Updating HEI with UKPRN: {UKPRN} with data: {hei_json}')
-    try:
-        hei_update = hei_schema.load(hei_json, instance=hei, partial=True)
-    except ValidationError as e:
-        app.logger.error(f'A Marshmallow validation error occurred updating HEI: {str(e)}')
-        msg = {'message': 'The HEI details failed validation.'}
-        return make_response((msg), 400)
-    try:
-        db.session.add(hei_update)
-        db.session.commit()
-        updated_hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
-        result = hei_schema.jsonify(updated_hei)
-        response = make_response(result, 200)
-        return response
-    except exc.SQLAlchemyError as e:
-        app.logger.error(f'A SQLAlchemy error occurred updating HEI: {str(e)}')
-        msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
-        return make_response(msg, 500)
+# @app.patch("/hei/<UKPRN>")
+# def hei_update(UKPRN):
+#     app.logger.info(f'Updating HEI with UKPRN: {UKPRN}')
+#     try:
+#         hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+#     except exc.NoResultFound as e:
+#         app.logger.error(f'No result found for UKPRN: {UKPRN}. Error: {str(e)}')
+#         msg = {'message': f'No result found for UKPRN: {UKPRN}'}
+#         return make_response((msg), 404)
+#     hei_json = request.get_json()
+#     app.logger.info(f'Updating HEI with UKPRN: {UKPRN} with data: {hei_json}')
+#     try:
+#         hei_update = hei_schema.load(hei_json, instance=hei, partial=True)
+#     except ValidationError as e:
+#         app.logger.error(f'A Marshmallow validation error occurred updating HEI: {str(e)}')
+#         msg = {'message': 'The HEI details failed validation.'}
+#         return make_response((msg), 400)
+#     try:
+#         db.session.add(hei_update)
+#         db.session.commit()
+#         updated_hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+#         result = hei_schema.jsonify(updated_hei)
+#         response = make_response(result, 200)
+#         return response
+#     except exc.SQLAlchemyError as e:
+#         app.logger.error(f'A SQLAlchemy error occurred updating HEI: {str(e)}')
+#         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
+#         return make_response(msg, 500)
     
-@app.put("/hei/<UKPRN>")
-def hei_update_put(UKPRN):
-    app.logger.info(f'Updating HEI with UKPRN: {UKPRN}')
-    try:
-        hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
-    except exc.NoResultFound as e:
-        app.logger.error(f'No result found for UKPRN: {UKPRN}. Error: {str(e)}')
-        msg = {'message': f'No result found for UKPRN: {UKPRN}'}
-        return make_response(jsonify(msg), 404)
+# @app.put("/hei/<UKPRN>")
+# def hei_update_put(UKPRN):
+#     app.logger.info(f'Updating HEI with UKPRN: {UKPRN}')
+#     try:
+#         hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+#     except exc.NoResultFound as e:
+#         app.logger.error(f'No result found for UKPRN: {UKPRN}. Error: {str(e)}')
+#         msg = {'message': f'No result found for UKPRN: {UKPRN}'}
+#         return make_response(jsonify(msg), 404)
 
+#     hei_json = request.get_json()
+#     app.logger.info(f'Updating HEI with UKPRN: {UKPRN} with data: {hei_json}') 
+#     try:
+#         hei_update = hei_schema.load(hei_json, instance=hei)
+#     except ValidationError as e:
+#         app.logger.error(f'A Marshmallow validation error occurred updating HEI: {str(e)}')
+#         msg = {'message': 'The HEI details failed validation.'}
+#         return make_response(jsonify(msg), 400)
+#     try:
+#         db.session.merge(hei_update)
+#         db.session.commit()
+#         updated_hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+#         result = hei_schema.jsonify(updated_hei)
+#         response = make_response(result, 200)
+#         return response
+#     except exc.SQLAlchemyError as e:
+#         app.logger.error(f'A SQLAlchemy error occurred updating HEI: {str(e)}')
+#         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
+#         return make_response(jsonify(msg), 500)
+
+@app.route("/hei/<UKPRN>", methods=['PUT', 'PATCH'])
+def hei_update(UKPRN):
+    
+    # Check if the HEI exists
+    try:
+        hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
+    except exc.NoResultFound as e:
+        # If the HEI doesn't exist and it's a PUT request, create a new HEI
+        if request.method == 'PUT':
+            app.logger.info(f'Creating a new HEI with UKPRN: {UKPRN}')
+            hei = HEI(UKPRN=UKPRN)
+        # If the HEI doesn't exist and it's a PATCH request, return a 404
+        elif request.method == 'PATCH':
+            app.logger.error(f'No result found for UKPRN: {UKPRN}. Error: {str(e)}')
+            msg = {'message': f'No result found for UKPRN: {UKPRN}'}
+            return make_response(jsonify(msg), 404)
+    
     hei_json = request.get_json()
     app.logger.info(f'Updating HEI with UKPRN: {UKPRN} with data: {hei_json}')
     
     try:
-        hei_update = hei_schema.load(hei_json, instance=hei)
+        if request.method == 'PUT':
+            # For PUT requests, replace the entire resource with the new data
+            hei_update = hei_schema.load(hei_json)
+        elif request.method == 'PATCH':
+            # For PATCH requests, update only the specified fields
+            hei_update = hei_schema.load(hei_json, instance=hei, partial=True)
+
     except ValidationError as e:
         app.logger.error(f'A Marshmallow validation error occurred updating HEI: {str(e)}')
         msg = {'message': 'The HEI details failed validation.'}
         return make_response(jsonify(msg), 400)
     
     try:
+        # For both PUT and PATCH requests, add or update the resource in the database
         db.session.merge(hei_update)
         db.session.commit()
-        updated_hei = db.session.execute(db.select(HEI).filter(HEI.UKPRN == UKPRN)).scalar_one()
-        result = hei_schema.jsonify(updated_hei)
-        response = make_response(result, 200)
-        return response
+        
+        app.logger.info(f'HEI with UKPRN {UKPRN} updated successfully')
+        return {'message': f'HEI with UKPRN {UKPRN} updated successfully'}
+
     except exc.SQLAlchemyError as e:
         app.logger.error(f'A SQLAlchemy error occurred updating HEI: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response(jsonify(msg), 500)
-
+    
 
 #Entry routes
 @app.get("/entry")
@@ -220,7 +263,6 @@ def entry_update(entry_id):
         app.logger.error(f'No result found for entry_id: {entry_id}. Error: {e}')
         msg = {'message': f'No result found for entry_id: {entry_id}'}
         return make_response((msg), 404)
-    
     entry_json = request.get_json()
     app.logger.info(f'Updating entry with entry_id: {entry_id} with data: {entry_json}')
     try:
@@ -260,7 +302,6 @@ def entry_update_put(entry_id):
         app.logger.error(f'A Marshmallow validation error occurred updating entry: {str(e)}')
         msg = {'message': 'The entry details failed validation.'}
         return make_response(jsonify(msg), 400)
-    
     try:
         db.session.merge(entry_updated)
         db.session.commit()
