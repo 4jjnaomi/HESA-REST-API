@@ -56,3 +56,15 @@ def register_validation_error(error):
     """
     response = error.messages
     return response, 400
+
+@app.errorhandler(404)
+def not_found_error(e):
+    """ Error handler for 404 Not Found errors.
+
+    Args:
+        error: 404 Not Found error
+
+    Returns:
+        HTTP response with the 404 status code
+    """
+    return jsonify(error=str(e)), 404

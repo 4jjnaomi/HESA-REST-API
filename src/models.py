@@ -1,6 +1,7 @@
 from typing import List
 from sqlalchemy import Integer, String, ForeignKey, ForeignKeyConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from werkzeug.security import generate_password_hash, check_password_hash
 from src import db
 
 class HEI(db.Model):
@@ -34,18 +35,18 @@ class Entry(db.Model):
 class User(db.Model):
     user_id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
     email: Mapped[str] = mapped_column(db.Text, unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(db.Text, unique=True, nullable=False)
+    password_hash: Mapped[str] = mapped_column(db.Text, unique=True, nullable=False)
     saved_charts: Mapped[List['SavedChart']] = relationship( back_populates='user')
 
     def __init__(self, email: str, password: str):
-        """
-        Create a new User object using the plain text password.
-        :type password_string: str
-        :type email: str
-        :returns None
-        """
         self.email = email
         self.password = password
+    
+    def set_password(self, password: str):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str):
+        return check_password_hash(self.password_hash, password)
 
 class SavedChart(db.Model):
     chart_id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
@@ -54,5 +55,4 @@ class SavedChart(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey('user.user_id'))
     user: Mapped['User'] = relationship('User', back_populates='saved_charts')
 
-# TODO: Change password to be a hashed password
 # TODO: Add lat and lon data to dataset
