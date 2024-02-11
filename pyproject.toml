@@ -19,5 +19,13 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
-exclude = ["additional*"]
+exclude = ["tests*"]
 namespaces = false
+
+[tool.pytest.ini_options]
+addopts = "--verbose"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["paralympics"]

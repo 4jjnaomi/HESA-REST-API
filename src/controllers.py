@@ -18,10 +18,6 @@ def index():
     app.logger.info("Index page requested")
     return "Index Page"
 
-@app.route("/hello/<name>")
-def hello(name):
-    return f"Hello, {name}"
-
 #HEI routes
 
 @app.get("/hei")
