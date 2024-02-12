@@ -1,7 +1,6 @@
 blinker==1.7.0
 click==8.1.7
 colorama==0.4.6
--e git+https://github.com/ucl-comp0035/comp0034-cw1i-4jjnaomi.git@f07fc1b1b20a4e62f41ec51ce6f42449bbf30b73#egg=comp0034_cw1i
 coverage==7.4.1
 Flask==3.0.1
 flask-marshmallow==1.2.0
