@@ -21,7 +21,11 @@ def test_get_entries(client):
     assert response.is_json
 
 
-@pytest.mark.parametrize('endpoint, expected_status_code, expected_data', [('/entry/755', 200, {'entry_id': 755}), ('/entry/999999', 404, {'message': 'No result found for entry_id: 999999'})])
+@pytest.mark.parametrize('endpoint, expected_status_code, expected_data', 
+                         [
+                            ('/entry/755', 200, {'entry_id': 755}), 
+                            ('/entry/999999', 404, {'message': 'No result found for entry_id: 999999'})
+                            ])
 def test_get_entry_endpoints(client, endpoint, expected_status_code, expected_data):
     """
     GIVEN a Flask test client

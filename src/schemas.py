@@ -1,11 +1,17 @@
 """
 This module contains the schema classes for serializing and deserializing HEI and Entry objects.
 
-The HEISchema class is used to serialize and deserialize HEI objects. It automatically generates fields based on the model's attributes.
+The HEISchema class is used to serialize and deserialize 
+HEI objects. It automatically generates fields 
+based on the model's attributes.
 
-The EntrySchema class is used to convert Entry objects to JSON format and vice versa. It inherits from the SQLAlchemyAutoSchema class provided by the Marshmallow library.
+The EntrySchema class is used to convert Entry objects to 
+JSON format and vice versa. It inherits from the SQLAlchemyAutoSchema 
+class provided by the Marshmallow library.
 
-Both classes define metadata options for the schema, such as whether to include foreign key fields, whether to load instances when deserializing, the SQLAlchemy session to use, and whether to include relationships in the schema.
+Both classes define metadata options for the schema, such as whether
+ to include foreign key fields, whether to load instances when 
+ deserializing, the SQLAlchemy session to use, and whether to include relationships in the schema.
 """
 
 from src.models import HEI, Entry

@@ -27,7 +27,7 @@ def index():
         str: The index page content.
     """
     app.logger.info("Index page requested")
-    return "Index Page"
+    return "Index Page. \n See comp0034-coursework1.pdf for list of available routes."
 
 # HEI routes
 
