@@ -6,8 +6,8 @@ The SQLAlchemy database and Marshmallow are also initialized.
 The module includes a function to add data from CSV files to the database tables.
 There is also a function to configure logging for the application.
 
-Note: This module assumes that the CSV files are located in the 
-'data' directory within the parent directory of the current 
+Note: This module assumes that the CSV files are located in the
+'data' directory within the parent directory of the current
 file.
 """
 import os
