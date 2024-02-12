@@ -96,8 +96,8 @@ def get_hei_using_ukprn(ukprn):
             db.select(HEI).filter_by(UKPRN=ukprn)).scalar_one()
         return hei_schema.dump(chosen_hei)
     except exc.NoResultFound as e:
-        app.logger.error(f'No result found for UKPRN: {
-                         ukprn}. Error: {str(e)}')
+        app.logger.error(f"No result found for UKPRN: {
+                         ukprn}. Error: {str(e)}")
         msg = {'message': f'No result found for UKPRN: {ukprn}'}
         return make_response((msg), 404)
 
@@ -185,8 +185,7 @@ def hei_update(ukprn):
             hei = HEI(UKPRN=ukprn)
         # If the HEI doesn't exist and it's a PATCH request, return a 404
         elif request.method == 'PATCH':
-            app.logger.error(f'No result found for UKPRN: {
-                             ukprn}. Error: {str(e)}')
+            app.logger.error(f"No result found for UKPRN: {ukprn}. Error: {str(e)}")
             msg = {'message': f'No result found for UKPRN: {ukprn}'}
             return make_response(jsonify(msg), 404)
     hei_json = request.get_json()
@@ -200,23 +199,20 @@ def hei_update(ukprn):
             hei_update = hei_schema.load(hei_json, instance=hei, partial=True)
 
     except ValidationError as e:
-        app.logger.error(
-            f'A Marshmallow validation error occurred updating HEI: {str(e)}')
+        app.logger.error(f'A Marshmallow validation error occurred updating HEI: {str(e)}')
         msg = {'message': 'The HEI details failed validation.'}
         return make_response(jsonify(msg), 400)
     try:
         # Check if UKPRN has been changed during the update
         if hei.UKPRN != hei_update.UKPRN:
-            app.logger.info(f'Updating HEI with UKPRN: {
-                            ukprn}. New UKPRN: {hei_update.UKPRN}')
+            app.logger.info(f'Updating HEI with UKPRN: {ukprn}. New UKPRN: {hei_update.UKPRN}')
         else:
             app.logger.info(f'Updating HEI with UKPRN: {ukprn}')
 
         # For both PUT and PATCH requests, add or update the resource in the database
         db.session.merge(hei_update)
         db.session.commit()
-        app.logger.info(f'HEI with UKPRN {
-                        hei_update.UKPRN} updated successfully')
+        app.logger.info(f'HEI with UKPRN {hei_update.UKPRN} updated successfully')
         return {'message': f'HEI with UKPRN {hei_update.UKPRN} updated successfully'}
 
     except exc.SQLAlchemyError as e:
@@ -253,14 +249,11 @@ def get_entries():
 
             return result
         except ValidationError as e:
-            app.logger.error(
-                f'A Marshmallow validation error occurred dumping entries: {str(e)}')
-            msg = {
-                'message': 'An Internal Server Error occurred. Please try again later.'}
+            app.logger.error(f'A Marshmallow validation error occurred dumping entries: {str(e)}')
+            msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
             return make_response((msg), 500)
     except exc.SQLAlchemyError as e:
-        app.logger.error(
-            f'A SQLAlchemy error occurred fetching entries: {str(e)}')
+        app.logger.error(f'A SQLAlchemy error occurred fetching entries: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response((msg), 500)
 
@@ -284,8 +277,7 @@ def get_entry(id1):
             db.select(Entry).filter_by(entry_id=id1)).scalar_one()
         return entry_schema.dump(one_entry)
     except exc.NoResultFound as e:
-        app.logger.error(f'No result found for entry_id: {
-                         id1}. Error: {str(e)}')
+        app.logger.error(f'No result found for entry_id: {id1}. Error: {str(e)}')
         msg = {'message': f'No result found for entry_id: {id1}'}
         return make_response((msg), 404)
 
@@ -307,14 +299,11 @@ def add_entry():
             db.session.commit()
             return {"message": f"Entry {entry.entry_id} added successfully"}
         except exc.SQLAlchemyError as e:
-            app.logger.error(
-                f'A SQLAlchemy error occurred adding entry: {str(e)}')
-            msg = {
-                'message': 'An Internal Server Error occurred. Please try again later.'}
+            app.logger.error(f'A SQLAlchemy error occurred adding entry: {str(e)}')
+            msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
             return make_response((msg), 500)
     except ValidationError as e:
-        app.logger.error(
-            f'A Marshmallow validation error occurred adding entry: {str(e)}')
+        app.logger.error(f'A Marshmallow validation error occurred adding entry: {str(e)}')
         msg = {'message': 'The entry details failed validation.'}
         return make_response((msg), 400)
 
@@ -337,8 +326,7 @@ def delete_entry(id1):
         db.session.commit()
         return {"message": f"Entry {id1} deleted successfully"}
     except exc.SQLAlchemyError as e:
-        app.logger.error(
-            f'A SQLAlchemy error occurred deleting entry: {str(e)}')
+        app.logger.error(f'A SQLAlchemy error occurred deleting entry: {str(e)}')
         msg = {'message': f'Entry with id {id1} not found.'}
         return make_response((msg), 404)
 
@@ -367,8 +355,7 @@ def entry_update(id1):
             app.logger.info(f'Creating a new entry with id: {id1}')
             entry = Entry(entry_id=id1)
         elif request.method == 'PATCH':
-            app.logger.error(f'No result found for entry_id: {
-                             id1}. Error: {str(e)}')
+            app.logger.error(f'No result found for entry_id: {id1}. Error: {str(e)}')
             msg = {'message': f'No result found for entry_id: {id1}'}
             return make_response(jsonify(msg), 404)
     entry_json = request.get_json()
@@ -380,25 +367,21 @@ def entry_update(id1):
             entry_update = entry_schema.load(
                 entry_json, instance=entry, partial=True)
     except ValidationError as e:
-        app.logger.error(
-            f'A Marshmallow validation error occurred updating entry: {str(e)}')
+        app.logger.error(f'A Marshmallow validation error occurred updating entry: {str(e)}')
         msg = {'message': 'The entry details failed validation.'}
         return make_response(jsonify(msg), 400)
     try:
         if entry.entry_id and entry.entry_id != entry_update.entry_id:
-            app.logger.info(f'Updating entry with id: {
-                            id1}. New id: {entry_update.entry_id}')
+            app.logger.info(f'Updating entry with id: {id1}. New id: {entry_update.entry_id}')
         else:
             app.logger.info(f'Updating entry with id: {id1}')
 
         db.session.merge(entry_update)
         db.session.commit()
 
-        app.logger.info(f'Entry with entry_id {
-                        entry_update.entry_id} updated successfully')
+        app.logger.info(f'Entry with entry_id {entry_update.entry_id} updated successfully')
         return {'message': f'Entry with entry_id {entry_update.entry_id} updated successfully'}
     except exc.SQLAlchemyError as e:
-        app.logger.error(
-            f'A SQLAlchemy error occurred updating entry: {str(e)}')
+        app.logger.error(f'A SQLAlchemy error occurred updating entry: {str(e)}')
         msg = {'message': 'An Internal Server Error occurred. Please try again later.'}
         return make_response(jsonify(msg), 500)

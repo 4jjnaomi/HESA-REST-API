@@ -68,7 +68,7 @@ def test_delete_entry(client, new_entry):
     entry_id = new_entry['entry_id']
     response = client.delete(f'/entry/{entry_id}')
     assert response.status_code == 200
-    assert response.json == {"message": f"Entry {
+    assert response.json == {"message": f"Entry with entry_id {
         entry_id} deleted successfully"}
 
 
