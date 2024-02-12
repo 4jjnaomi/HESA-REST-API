@@ -2,7 +2,7 @@
 ## Description
 This repository contains the contents for coursework 1 for the module COMP0034 2023/24. The repository contains a REST API application that uses Python Flask  and the Estates Management Record from the Higher Education Statistics Agency.
 
-#Installation and Usage
+## Installation and Usage
 1. Fork this repository
 2. Clone the resulting repository locally and to your IDE
 3. Create and activate a virtual environment
