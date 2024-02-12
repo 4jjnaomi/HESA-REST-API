@@ -96,8 +96,7 @@ def get_hei_using_ukprn(ukprn):
             db.select(HEI).filter_by(UKPRN=ukprn)).scalar_one()
         return hei_schema.dump(chosen_hei)
     except exc.NoResultFound as e:
-        app.logger.error(f"No result found for UKPRN: {
-                         ukprn}. Error: {str(e)}")
+        app.logger.error(f"No result found for UKPRN: { ukprn}. Error: {str(e)}")
         msg = {'message': f'No result found for UKPRN: {ukprn}'}
         return make_response((msg), 404)
 
