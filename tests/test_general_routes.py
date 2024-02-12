@@ -1,4 +1,8 @@
+"""
+This module contains unit tests for the general routes of the Flask application.
+"""
 from src.models import User
+
 
 def test_index_page(client):
     """
@@ -11,6 +15,7 @@ def test_index_page(client):
     assert response.status_code == 200
     assert b'Index Page' in response.data
 
+
 def test_404_page(client):
     """
     GIVEN a Flask test client
@@ -21,6 +26,7 @@ def test_404_page(client):
     response = client.get('/non-existent-page')
     assert response.status_code == 404
     assert b'Not Found' in response.data
+
 
 def test_set_password():
     """
@@ -34,6 +40,7 @@ def test_set_password():
     assert u.password_hash is not None
     assert u.password_hash != 'newpassword'
 
+
 def test_check_password():
     """
     GIVEN a User model
@@ -45,6 +52,7 @@ def test_check_password():
     u.set_password('password123')
 
     assert u.check_password('password123')
+
 
 def test_check_password_false():
     """

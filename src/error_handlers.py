@@ -1,9 +1,12 @@
-from flask import json, current_app as app, jsonify, make_response
+"""
+This module contains error handlers for handling exceptions and HTTP errors in a Flask application.
+"""
+from flask import json, current_app as app, jsonify
 from marshmallow.exceptions import ValidationError
 from werkzeug.exceptions import HTTPException
 
-
 # ERROR HANDLERS
+
 
 @app.errorhandler(Exception)
 def handle_exception(e):
@@ -24,13 +27,13 @@ def handle_exception(e):
 
 
 @app.errorhandler(HTTPException)
-def handle_exception(e):
+def handle_exception_http(e):
     """Return JSON instead of HTML for HTTP errors.
 
     Args:
         e: An HTTP exception
     Returns:
-        response:  A Flask respons with the HTTP response in JSON format
+        response: A Flask response with the HTTP response in JSON format
     """
     # start with the correct headers and status code from the error
     response = e.get_response()
@@ -46,7 +49,7 @@ def handle_exception(e):
 
 @app.errorhandler(ValidationError)
 def register_validation_error(error):
-    """ Error handler for marshmallow schema validation errors.
+    """Error handler for marshmallow schema validation errors.
 
     Args:
         error (ValidationError): Marshmallow error.
@@ -57,9 +60,10 @@ def register_validation_error(error):
     response = error.messages
     return response, 400
 
+
 @app.errorhandler(404)
 def not_found_error(e):
-    """ Error handler for 404 Not Found errors.
+    """Error handler for 404 Not Found errors.
 
     Args:
         error: 404 Not Found error

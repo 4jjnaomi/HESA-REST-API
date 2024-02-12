@@ -1,7 +1,14 @@
+"""
+This module contains fixtures for testing the Flask application.
+
+Fixtures are functions that provide test data or set up the testing environment. In this module, we have fixtures for
+creating a test app, a test client, and for creating new Higher Education Institutions (HEIs) and entries in the
+database for testing purposes.
+"""
 import os
 from pathlib import Path
-
 import pytest
+
 from sqlalchemy import exists
 from src import create_app, db
 from src.models import HEI, Entry
@@ -21,7 +28,8 @@ def app():
     """
     # See https://flask.palletsprojects.com/en/2.3.x/tutorial/tests/#id2
     # Create a temporary testing database
-    db_path = Path(__file__).parent.parent.joinpath('data', 'hei_environmental_testdb.sqlite')
+    db_path = Path(__file__).parent.parent.joinpath(
+        'data', 'hei_environmental_testdb.sqlite')
     test_cfg = {
         "TESTING": True,
         "SQLALCHEMY_DATABASE_URI": "sqlite:///" + str(db_path),
@@ -51,10 +59,30 @@ def app():
 
 @pytest.fixture()
 def client(app):
+    """
+    Returns a test client for the Flask application.
+
+    Parameters:
+    - app: The Flask application object.
+
+    Returns:
+    - A test client for the Flask application.
+    """
     return app.test_client()
+
 
 @pytest.fixture(scope='function')
 def new_hei(app):
+    """
+    Fixture for creating a new Higher Education Institution (HEI) in the database.
+
+    Args:
+        app (Flask): The Flask application object.
+
+    Yields:
+        JSON: A dictionary representing the newly created HEI.
+
+    """
     new_hei_json = {
         "UKPRN": 10000000,
         "he_name": "New Univerity",
@@ -64,40 +92,54 @@ def new_hei(app):
         new_hei = HEISchema().load(new_hei_json)
         db.session.add(new_hei)
         db.session.commit()
-        
+
     yield new_hei_json
 
     with app.app_context():
-            hei_exists = db.session.query(exists().where(HEI.UKPRN == "10000000")).scalar()
-            if hei_exists:
-                # Only delete the HEI if it exists in the database
-                db.session.execute(HEI.__table__.delete().where(HEI.UKPRN == "10000000"))
-                db.session.commit()
+        hei_exists = db.session.query(
+            exists().where(HEI.UKPRN == "10000000")).scalar()
+        if hei_exists:
+            # Only delete the HEI if it exists in the database
+            db.session.execute(
+                HEI.__table__.delete().where(HEI.UKPRN == "10000000"))
+            db.session.commit()
+
 
 @pytest.fixture(scope='function')
 def new_entry(app):
+    """
+    Fixture that creates a new entry in the database for testing purposes.
+
+    Args:
+        app (Flask): The Flask application object.
+
+    Yields:
+        JSON: A dictionary representing the new entry.
+
+    """
     new_entry_json = {
-      "entry_id": "100000",
-      "academic_year": "20/20",
-      "classification": "dummy",
-      "category_marker": "dummy",
-      "category": "dummy",
-      "value": "70",
-      "UKPRN": "111111",
-      "he_name": "University of Naomi"
+        "entry_id": "100000",
+        "academic_year": "20/20",
+        "classification": "dummy",
+        "category_marker": "dummy",
+        "category": "dummy",
+        "value": "70",
+        "UKPRN": "111111",
+        "he_name": "University of Naomi"
     }
-     
+
     with app.app_context():
         new_entry = EntrySchema().load(new_entry_json)
         db.session.add(new_entry)
         db.session.commit()
-    
+
     yield new_entry_json
 
     with app.app_context():
-        entry_exists = db.session.query(exists().where(Entry.entry_id == "100000")).scalar()
+        entry_exists = db.session.query(
+            exists().where(Entry.entry_id == "100000")).scalar()
         if entry_exists:
             # Only delete the entry if it exists in the database
-            db.session.execute(Entry.__table__.delete().where(Entry.entry_id == "100000"))
+            db.session.execute(Entry.__table__.delete().where(
+                Entry.entry_id == "100000"))
             db.session.commit()
-
