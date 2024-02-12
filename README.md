@@ -9,5 +9,5 @@ This repository contains the contents for coursework 1 for the module COMP0034 2
 4. Install the requirements using `pip install -r requirements.txt`
 5. Run the app `flask --app src run --debug`
 6. Open a browser and go to http://127.0.0.1:5000/
-7. Go to the various URLs outlined in [README.md](README.md)
+7. Go to the various URLs outlined in [comp0034-coursework1.pdf](comp0034-coursework1.pdf)
 8. Stop the app using `CTRL+C`
