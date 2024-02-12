@@ -21,7 +21,7 @@ def test_get_entries(client):
     assert response.is_json
 
 
-@pytest.mark.parametrize('endpoint, expected_status_code, expected_data', [('/entry/755', 200, {'entry_id': 755}), ('/entry/999999', 404, {'message': 'No result for entry_id: 999999'})])
+@pytest.mark.parametrize('endpoint, expected_status_code, expected_data', [('/entry/755', 200, {'entry_id': 755}), ('/entry/999999', 404, {'message': 'No result found for entry_id: 999999'})])
 def test_get_entry_endpoints(client, endpoint, expected_status_code, expected_data):
     """
     GIVEN a Flask test client
@@ -68,7 +68,7 @@ def test_delete_entry(client, new_entry):
     entry_id = new_entry['entry_id']
     response = client.delete(f'/entry/{entry_id}')
     assert response.status_code == 200
-    assert response.json == {"message": f"Entry with entry_id {entry_id} deleted successfully"}
+    assert response.json == {"message": f"Entry {entry_id} deleted successfully"}
 
 
 def test_delete_nonexistent_entry(client):
